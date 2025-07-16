@@ -2,7 +2,8 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:read_the_label/theme/app_theme.dart';
+import 'package:read_the_label/theme/app_colors.dart';
+import 'package:read_the_label/theme/app_text_styles.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
 import 'package:read_the_label/views/screens/product_analysis_view.dart';
 import 'package:read_the_label/views/screens/food_analysis_view.dart';
@@ -17,120 +18,58 @@ class HomePage extends StatelessWidget {
       extendBody: true,
       extendBodyBehindAppBar: true,
       backgroundColor: Colors.transparent,
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        flexibleSpace: ClipRect(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 50, sigmaY: 50),
-            child: Container(color: Colors.transparent),
-          ),
-        ),
-        centerTitle: true,
-        title: Consumer<UiViewModel>(
-          builder: (context, uiProvider, _) {
-            return Text(
-              [
-                'Scan Label',
-                'Scan Food',
-                'Daily Intake'
-              ][uiProvider.currentIndex],
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurface,
-                fontFamily: 'Inter',
-                fontWeight: FontWeight.w500,
-              ),
-            );
-          },
+      body: Padding(
+        padding: const EdgeInsets.only(bottom: 80),
+        child: IndexedStack(
+          index: Provider.of<UiViewModel>(context).currentIndex,
+          children: const [
+            ProductAnalysisView(),
+            FoodAnalysisView(),
+            DailyIntakeView(),
+          ],
         ),
       ),
-      bottomNavigationBar: _buildBottomNavigationBar(),
-      body: Container(
-        height: MediaQuery.of(context).size.height,
-        color: Theme.of(context).colorScheme.surface,
-        child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
-          transitionBuilder: (Widget child, Animation<double> animation) {
-            return FadeTransition(
-              opacity: animation,
-              child: child,
-            );
-          },
-          child: Consumer<UiViewModel>(
-            builder: (context, uiProvider, _) {
-              return IndexedStack(
-                key: ValueKey<int>(uiProvider.currentIndex),
-                index: uiProvider.currentIndex,
-                children: [
-                  AnimatedOpacity(
-                    opacity: uiProvider.currentIndex == 0 ? 1.0 : 0.0,
-                    duration: const Duration(milliseconds: 300),
-                    child: const ProductAnalysisView(),
+      bottomNavigationBar: Consumer<UiViewModel>(
+        builder: (context, uiProvider, _) {
+          return Container(
+            color: Colors.transparent,
+            child: ClipRect(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 50, sigmaY: 50),
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: BottomNavigationBar(
+                    elevation: 0,
+                    selectedLabelStyle: AppTextStyles.bodySmallOrangeAccent,
+                    unselectedLabelStyle: AppTextStyles.bodySmall,
+                    backgroundColor: Colors.transparent,
+                    selectedItemColor: AppColors.secondaryOrange,
+                    unselectedItemColor: AppColors.primaryWhite,
+                    currentIndex: uiProvider.currentIndex,
+                    onTap: (index) {
+                      uiProvider.updateCurrentIndex(index);
+                    },
+                    items: const [
+                      BottomNavigationBarItem(
+                        icon: Icon(Icons.document_scanner),
+                        label: 'Scan Label',
+                      ),
+                      BottomNavigationBarItem(
+                        icon: Icon(Icons.food_bank),
+                        label: 'Scan Food',
+                      ),
+                      BottomNavigationBarItem(
+                        icon: Icon(Icons.pie_chart),
+                        label: 'Daily Intake',
+                      ),
+                    ],
                   ),
-                  AnimatedOpacity(
-                    opacity: uiProvider.currentIndex == 1 ? 1.0 : 0.0,
-                    duration: const Duration(milliseconds: 300),
-                    child: const FoodAnalysisView(),
-                  ),
-                  AnimatedOpacity(
-                    opacity: uiProvider.currentIndex == 2 ? 1.0 : 0.0,
-                    duration: const Duration(milliseconds: 300),
-                    child: const DailyIntakeView(),
-                  ),
-                ],
-              );
-            },
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBottomNavigationBar() {
-    return Consumer<UiViewModel>(
-      builder: (context, uiProvider, _) {
-        return Container(
-          color: Theme.of(context).colorScheme.cardBackground,
-          child: ClipRect(
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 50, sigmaY: 50),
-              child: BottomNavigationBar(
-                elevation: 0,
-                selectedLabelStyle: TextStyle(
-                  fontFamily: 'Inter',
-                  fontWeight: FontWeight.w400,
-                  color: Theme.of(context).colorScheme.onSurface,
                 ),
-                unselectedLabelStyle: TextStyle(
-                  fontFamily: 'Inter',
-                  fontWeight: FontWeight.w400,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-                backgroundColor: Colors.transparent,
-                selectedItemColor: Theme.of(context).colorScheme.primary,
-                unselectedItemColor: Colors.grey,
-                currentIndex: uiProvider.currentIndex,
-                onTap: (index) {
-                  uiProvider.updateCurrentIndex(index);
-                },
-                items: const [
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.document_scanner),
-                    label: 'Scan Label',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.food_bank),
-                    label: 'Scan Food',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.pie_chart),
-                    label: 'Daily Intake',
-                  ),
-                ],
               ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }

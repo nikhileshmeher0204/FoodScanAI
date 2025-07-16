@@ -7,27 +7,13 @@ Widget HeaderCard(BuildContext context, DateTime selectedDate) {
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Daily Nutrition',
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.onSurface,
-                fontFamily: 'Inter',
-              ),
-            ),
-            Text(
-              DateFormat('EEEE, MMMM d').format(selectedDate),
-              style: TextStyle(
-                fontSize: 16,
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                fontFamily: 'Inter',
-              ),
-            ),
-          ],
+        Text(
+          DateFormat('EEEE, MMMM d').format(selectedDate),
+          style: TextStyle(
+            fontSize: 16,
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+            fontFamily: 'Inter',
+          ),
         ),
         IconButton(
           icon: const Icon(Icons.calendar_today),

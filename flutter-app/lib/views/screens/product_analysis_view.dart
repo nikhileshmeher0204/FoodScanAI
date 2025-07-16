@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:read_the_label/core/constants/nutrient_insights.dart';
+import 'package:read_the_label/theme/app_colors.dart';
+import 'package:read_the_label/theme/app_text_styles.dart';
 import 'package:read_the_label/theme/app_theme.dart';
 import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
 import 'package:read_the_label/viewmodels/product_analysis_view_model.dart';
@@ -26,11 +28,22 @@ class ProductAnalysisView extends StatefulWidget {
 class _ProductAnalysisViewState extends State<ProductAnalysisView> {
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
-      child: Padding(
-        padding:
-            EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 80),
+    return CustomScrollView(slivers: [
+      SliverAppBar(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        pinned: true,
+        expandedHeight: 120,
+        flexibleSpace: FlexibleSpaceBar(
+          expandedTitleScale: 1.75,
+          titlePadding: const EdgeInsets.only(left: 24, bottom: 16),
+          title: Text(
+            'Scan Label',
+            style: AppTextStyles.heading2BoldClose,
+          ),
+          collapseMode: CollapseMode.pin,
+        ),
+      ),
+      SliverToBoxAdapter(
         child: Consumer3<UiViewModel, ProductAnalysisViewModel,
                 DailyIntakeViewModel>(
             builder: (context, uiProvider, productAnalysisProvider,
@@ -39,7 +52,6 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
-              const SizedBox(height: 100),
               Container(
                 margin: const EdgeInsets.all(20),
                 padding: const EdgeInsets.all(20),
@@ -115,7 +127,56 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
               if (uiProvider.loading) const NutrientInfoShimmer(),
 
               //Good/Moderate nutrients
-              if (productAnalysisProvider.getGoodNutrients().isNotEmpty)
+              if (productAnalysisProvider.getOptimalNutrients().isNotEmpty)
+                Container(
+                  margin: const EdgeInsets.symmetric(vertical: 24.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                        child: Text(
+                          productAnalysisProvider.productName,
+                          style: AppTextStyles.heading2,
+                          textAlign: TextAlign.start,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                        child: Text(
+                          "OPTIMAL NUTRIENTS",
+                          style: AppTextStyles.greenAccentText,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(15),
+                          child: Column(
+                            children: productAnalysisProvider
+                                .getOptimalNutrients()
+                                .map((nutrient) => NutrientTile(
+                                      nutrient: nutrient['name'],
+                                      status: nutrient['status'],
+                                      healthSign: nutrient['health_impact'],
+                                      quantity: nutrient['quantity'],
+                                      insight:
+                                          nutrientInsights[nutrient['name']],
+                                      dailyValue: nutrient['daily_value'],
+                                    ))
+                                .toList(),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+              //Moderate nutrients
+              if (productAnalysisProvider.getModerateNutrients().isNotEmpty)
                 Container(
                   margin: const EdgeInsets.symmetric(vertical: 24.0),
                   child: Column(
@@ -123,60 +184,28 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
                     children: [
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                        child: Text(
-                          productAnalysisProvider.productName,
-                          style: const TextStyle(
-                              fontFamily: 'Inter',
-                              fontWeight: FontWeight.w400,
-                              fontSize: 24),
-                          textAlign: TextAlign.start,
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 4,
-                              height: 24,
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF4CAF50),
-                                borderRadius: BorderRadius.circular(2),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Text(
-                              "Optimal Nutrients",
-                              style: TextStyle(
-                                color: Theme.of(context)
-                                    .textTheme
-                                    .titleLarge!
-                                    .color,
-                                fontSize: 20,
-                                fontWeight: FontWeight.w400,
-                                fontFamily: 'Inter',
-                              ),
-                            ),
-                          ],
-                        ),
+                        child: Text("MODERATE NUTRIENTS",
+                            style: AppTextStyles.orangeAccentText),
                       ),
                       const SizedBox(height: 16),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                        child: Wrap(
-                          spacing: 12,
-                          runSpacing: 12,
-                          children: productAnalysisProvider
-                              .getGoodNutrients()
-                              .map((nutrient) => NutrientTile(
-                                    nutrient: nutrient['name'],
-                                    healthSign: nutrient['health_impact'],
-                                    quantity: nutrient['quantity'],
-                                    insight: nutrientInsights[nutrient['name']],
-                                    dailyValue: nutrient['daily_value'],
-                                  ))
-                              .toList(),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(15),
+                          child: Column(
+                            children: productAnalysisProvider
+                                .getModerateNutrients()
+                                .map((nutrient) => NutrientTile(
+                                      nutrient: nutrient['name'],
+                                      status: nutrient['status'],
+                                      healthSign: nutrient['health_impact'],
+                                      quantity: nutrient['quantity'],
+                                      insight:
+                                          nutrientInsights[nutrient['name']],
+                                      dailyValue: nutrient['daily_value'],
+                                    ))
+                                .toList(),
+                          ),
                         ),
                       ),
                     ],
@@ -184,7 +213,7 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
                 ),
 
               //Bad nutrients
-              if (productAnalysisProvider.getBadNutrients().isNotEmpty)
+              if (productAnalysisProvider.getWatchOutNutrients().isNotEmpty)
                 Container(
                   margin: const EdgeInsets.symmetric(vertical: 24.0),
                   child: Column(
@@ -192,55 +221,34 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
                     children: [
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 4,
-                              height: 24,
-                              decoration: BoxDecoration(
-                                color:
-                                    const Color(0xFFFF5252), // Red accent bar
-                                borderRadius: BorderRadius.circular(2),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Text(
-                              "Watch Out",
-                              style: TextStyle(
-                                color: Theme.of(context)
-                                    .textTheme
-                                    .titleLarge!
-                                    .color,
-                                fontSize: 20,
-                                fontWeight: FontWeight.w400,
-                                fontFamily: 'Inter',
-                              ),
-                            ),
-                          ],
-                        ),
+                        child: Text("WATCH OUT",
+                            style: AppTextStyles.redAccentText),
                       ),
                       const SizedBox(height: 16),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                        child: Wrap(
-                          spacing: 12,
-                          runSpacing: 12,
-                          children: productAnalysisProvider
-                              .getBadNutrients()
-                              .map((nutrient) => NutrientTile(
-                                    nutrient: nutrient['name'],
-                                    healthSign: nutrient['health_impact'],
-                                    quantity: nutrient['quantity'],
-                                    insight: nutrientInsights[nutrient['name']],
-                                    dailyValue: nutrient['daily_value'],
-                                  ))
-                              .toList(),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(15),
+                          child: Column(
+                            children: productAnalysisProvider
+                                .getWatchOutNutrients()
+                                .map((nutrient) => NutrientTile(
+                                      nutrient: nutrient['name'],
+                                      status: nutrient['status'],
+                                      healthSign: nutrient['health_impact'],
+                                      quantity: nutrient['quantity'],
+                                      insight:
+                                          nutrientInsights[nutrient['name']],
+                                      dailyValue: nutrient['daily_value'],
+                                    ))
+                                .toList(),
+                          ),
                         ),
                       ),
                     ],
                   ),
                 ),
-              if (productAnalysisProvider.getBadNutrients().isNotEmpty)
+              if (productAnalysisProvider.getWatchOutNutrients().isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24.0),
                   child: Row(
@@ -286,13 +294,7 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
                         children: [
                           Text(
                             "Serving Size: ${uiProvider.servingSize.round()} g",
-                            style: TextStyle(
-                                color: Theme.of(context)
-                                    .textTheme
-                                    .bodyLarge!
-                                    .color,
-                                fontSize: 16,
-                                fontFamily: 'Inter'),
+                            style: AppTextStyles.bodyLargeBold,
                           ),
                           IconButton(
                             icon: Icon(Icons.edit,
@@ -363,13 +365,10 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
                         alignment: Alignment.centerLeft,
                         child: Text(
                           "How much did you consume?",
-                          style: TextStyle(
-                              color:
-                                  Theme.of(context).textTheme.bodyMedium!.color,
-                              fontSize: 16,
-                              fontFamily: 'Inter'),
+                          style: AppTextStyles.bodyLargeBold,
                         ),
                       ),
+                      const SizedBox(height: 8),
                       const SizedBox(height: 8),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
@@ -430,32 +429,19 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
                             Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(
+                                const Icon(
                                   Icons.add_circle_outline,
                                   size: 20,
-                                  color:
-                                      Theme.of(context).colorScheme.onPrimary,
+                                  color: AppColors.primaryBlack,
                                 ),
                                 const SizedBox(width: 8),
-                                Text(
-                                  "Add to today's intake",
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    fontFamily: 'Inter',
-                                    color:
-                                        Theme.of(context).colorScheme.onPrimary,
-                                  ),
-                                ),
+                                Text("Add to today's intake",
+                                    style: AppTextStyles.buttonTextBlack),
                               ],
                             ),
                             Text(
                               "${uiProvider.sliderValue.toStringAsFixed(0)} grams, ${(productAnalysisProvider.getCalories() * (uiProvider.sliderValue / uiProvider.servingSize)).toStringAsFixed(0)} calories",
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Theme.of(context).colorScheme.onPrimary,
-                                fontFamily: 'Inter',
-                              ),
+                              style: AppTextStyles.buttonSubTextBlack,
                             ),
                           ],
                         ),
@@ -573,7 +559,7 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
           );
         }),
       ),
-    );
+    ]);
   }
 
   void _handleImageCapture(ImageSource source) async {
@@ -596,16 +582,11 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
             backgroundColor: Theme.of(context).colorScheme.surface,
             title: Text(
               'Now capture nutrition label',
-              style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurface,
-                  fontFamily: 'Inter'),
+              style: AppTextStyles.heading2,
             ),
             content: Text(
               'Please capture or select the nutrition facts label of the product',
-              style: TextStyle(
-                  color:
-                      Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
-                  fontFamily: 'Inter'),
+              style: AppTextStyles.bodyMedium,
             ),
             actions: [
               TextButton(
@@ -619,8 +600,7 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
                     await productAnalysisProvider.analyzeImages();
                   }
                 },
-                child: const Text('Continue',
-                    style: TextStyle(fontFamily: 'Inter')),
+                child: Text('Continue', style: AppTextStyles.buttonTextWhite),
               ),
             ],
           ),

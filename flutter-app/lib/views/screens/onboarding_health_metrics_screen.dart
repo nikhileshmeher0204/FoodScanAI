@@ -294,7 +294,7 @@ class _OnboardingHealthMetricsScreenState
                 Text(
                   label,
                   style: AppTextStyles.withColor(
-                    AppTextStyles.heading3,
+                    AppTextStyles.heading4,
                     AppColors.primaryWhite,
                   ),
                 ),

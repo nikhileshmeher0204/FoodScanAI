@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:read_the_label/theme/app_text_styles.dart';
 import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
 import 'package:read_the_label/views/widgets/date_selector.dart';
 import 'package:read_the_label/views/widgets/detailed_nutrients_card.dart';
@@ -51,39 +52,50 @@ class _DailyIntakeViewState extends State<DailyIntakeView> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
-      child: Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).padding.bottom + 80,
-          top: MediaQuery.of(context).padding.top + 10,
+    return CustomScrollView(
+      slivers: [
+        SliverAppBar(
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          pinned: true,
+          expandedHeight: 120,
+          flexibleSpace: FlexibleSpaceBar(
+            expandedTitleScale: 1.75,
+            titlePadding: const EdgeInsets.only(left: 24, bottom: 16),
+            title: Text(
+              'Daily Intake',
+              style: AppTextStyles.heading2BoldClose,
+            ),
+            collapseMode: CollapseMode.pin,
+          ),
         ),
-        child: Consumer<DailyIntakeViewModel>(
-            builder: (context, dailyIntakeProvider, _) {
-          return Column(
-            children: [
-              HeaderCard(context, _selectedDate),
-              DateSelector(
-                context,
-                _selectedDate,
-                (DateTime newDate) {
-                  setState(() {
-                    _selectedDate = newDate;
-                    dailyIntakeProvider.loadDailyIntake(newDate);
-                  });
-                },
-              ),
-              MacronutrientSummaryCard(
-                  context, dailyIntakeProvider.dailyIntake),
-              FoodHistoryCard(
-                  context: context,
-                  currentIndex: 2,
-                  selectedDate: _selectedDate),
-              DetailedNutrientsCard(context, dailyIntakeProvider.dailyIntake),
-            ],
-          );
-        }),
-      ),
+        SliverToBoxAdapter(
+          child: Consumer<DailyIntakeViewModel>(
+              builder: (context, dailyIntakeProvider, _) {
+            return Column(
+              children: [
+                HeaderCard(context, _selectedDate),
+                DateSelector(
+                  context,
+                  _selectedDate,
+                  (DateTime newDate) {
+                    setState(() {
+                      _selectedDate = newDate;
+                      dailyIntakeProvider.loadDailyIntake(newDate);
+                    });
+                  },
+                ),
+                MacronutrientSummaryCard(
+                    context, dailyIntakeProvider.dailyIntake),
+                FoodHistoryCard(
+                    context: context,
+                    currentIndex: 2,
+                    selectedDate: _selectedDate),
+                DetailedNutrientsCard(context, dailyIntakeProvider.dailyIntake),
+              ],
+            );
+          }),
+        ),
+      ],
     );
   }
 }

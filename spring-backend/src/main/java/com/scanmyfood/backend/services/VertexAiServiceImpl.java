@@ -91,7 +91,7 @@ public class VertexAiServiceImpl implements AiService {
                 {
                   "name": "Nutrient name",
                   "quantity": "Quantity with unit",
-                  "daily_value": "Percentage of daily value",
+                  "daily_value": "daily value percentage with % symbol",
                   "status": "High/Moderate/Low based on DV%",
                   "health_impact": "Good/Bad/Moderate"
                 }
@@ -131,7 +131,7 @@ public class VertexAiServiceImpl implements AiService {
                High status → Good health_impact
                Moderate status → Moderate health_impact
                Low status → Bad health_impact
-             "Less than" nutrients (like sodium, saturated fat):
+             "Less than" nutrients (like sodium, saturated fat, trans fat, sugar, cholesterol):
                Low status → Good health_impact
                Moderate status → Moderate health_impact
                High status → Bad health_impact

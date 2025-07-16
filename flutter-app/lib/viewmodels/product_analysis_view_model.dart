@@ -11,8 +11,9 @@ class ProductAnalysisViewModel extends BaseViewModel {
   String _productName = "";
   Map<String, dynamic> _nutritionAnalysis = {};
   List<Map<String, dynamic>> parsedNutrients = [];
-  List<Map<String, dynamic>> goodNutrients = [];
-  List<Map<String, dynamic>> badNutrients = [];
+  List<Map<String, dynamic>> optimalNutrients = [];
+  List<Map<String, dynamic>> moderateNutrients = [];
+  List<Map<String, dynamic>> watchOutNutrients = [];
   List<Map<String, dynamic>> _primaryConcerns = [];
   Map<String, dynamic> totalPlateNutrients = {};
 
@@ -31,8 +32,9 @@ class ProductAnalysisViewModel extends BaseViewModel {
   String get productName => _productName;
   Map<String, dynamic> get nutritionAnalysis => _nutritionAnalysis;
   bool canAnalyze() => _frontImage != null && _nutritionLabelImage != null;
-  List<Map<String, dynamic>> getGoodNutrients() => goodNutrients;
-  List<Map<String, dynamic>> getBadNutrients() => badNutrients;
+  List<Map<String, dynamic>> getOptimalNutrients() => optimalNutrients;
+  List<Map<String, dynamic>> getModerateNutrients() => moderateNutrients;
+  List<Map<String, dynamic>> getWatchOutNutrients() => watchOutNutrients;
   List<Map<String, dynamic>> get primaryConcerns => _primaryConcerns;
 
   // Methods for product analysis
@@ -79,8 +81,9 @@ class ProductAnalysisViewModel extends BaseViewModel {
       _nutritionAnalysis = {};
       // Process nutrients
       parsedNutrients = [];
-      goodNutrients = [];
-      badNutrients = [];
+      optimalNutrients = [];
+      moderateNutrients = [];
+      watchOutNutrients = [];
       _primaryConcerns = []; // Clear primary concerns
 
       for (var nutrient in response.nutritionAnalysis.nutrients) {
@@ -93,11 +96,12 @@ class ProductAnalysisViewModel extends BaseViewModel {
         };
         parsedNutrients.add(nutrientMap);
 
-        if (nutrient.healthImpact == "Good" ||
-            nutrient.healthImpact == "Moderate") {
-          goodNutrients.add(nutrientMap);
+        if (nutrient.healthImpact == "Good") {
+          optimalNutrients.add(nutrientMap);
+        } else if (nutrient.healthImpact == "Moderate") {
+          moderateNutrients.add(nutrientMap);
         } else {
-          badNutrients.add(nutrientMap);
+          watchOutNutrients.add(nutrientMap);
         }
       }
 
@@ -132,8 +136,9 @@ class ProductAnalysisViewModel extends BaseViewModel {
       }
 
       print("📝 Product: $_productName");
-      print("📊 Good nutrients: ${goodNutrients.length}");
-      print("⚠️ Bad nutrients: ${badNutrients.length}");
+      print("📊 Good nutrients: ${optimalNutrients.length}");
+      print("⚠️ Moderate nutrients: ${moderateNutrients.length}");
+      print("⚠️ Bad nutrients: ${watchOutNutrients.length}");
 
       notifyListeners();
       return "✅Product Analysis complete";

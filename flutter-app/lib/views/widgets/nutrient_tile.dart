@@ -1,6 +1,8 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:read_the_label/theme/app_colors.dart';
+import 'package:read_the_label/theme/app_text_styles.dart';
 
 class NutrientGrid extends StatefulWidget {
   final List<NutrientData> nutrients;
@@ -23,6 +25,7 @@ class _NutrientGridState extends State<NutrientGrid> {
       children: widget.nutrients
           .map((nutrient) => NutrientTile(
                 nutrient: nutrient.name,
+                status: nutrient.status,
                 healthSign: nutrient.healthSign,
                 quantity: nutrient.quantity,
                 dailyValue: nutrient.dailyValue,
@@ -35,6 +38,7 @@ class _NutrientGridState extends State<NutrientGrid> {
 
 class NutrientTile extends StatefulWidget {
   final String nutrient;
+  final String status;
   final String healthSign;
   final String quantity;
   final String dailyValue;
@@ -43,6 +47,7 @@ class NutrientTile extends StatefulWidget {
   const NutrientTile({
     super.key,
     required this.nutrient,
+    required this.status,
     required this.healthSign,
     required this.quantity,
     required this.dailyValue,
@@ -75,23 +80,18 @@ class _NutrientTileState extends State<NutrientTile>
 
   @override
   Widget build(BuildContext context) {
-    Color backgroundColor;
+    Color backgroundColor = AppColors.cardBackground;
     IconData statusIcon;
 
     switch (widget.healthSign) {
       case "Good":
-        backgroundColor =
-            Theme.of(context).colorScheme.secondary.withOpacity(0.15);
-        statusIcon = Icons.check_circle_outline;
+        statusIcon = Icons.check_circle_rounded;
         break;
       case "Bad":
-        backgroundColor = Theme.of(context).colorScheme.error.withOpacity(0.15);
         statusIcon = Icons.warning_outlined;
         break;
-      default: // "Moderate"
-        backgroundColor =
-            Theme.of(context).colorScheme.primary.withOpacity(0.15);
-        statusIcon = Icons.info_outline;
+      default:
+        statusIcon = Icons.warning_outlined;
     }
 
     return Container(
@@ -107,164 +107,136 @@ class _NutrientTileState extends State<NutrientTile>
             }
           });
         },
-        child: ClipRRect(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: AnimatedContainer(
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.fastOutSlowIn,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: backgroundColor,
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: ClipRRect(
+            child: AnimatedSize(
               duration: const Duration(milliseconds: 500),
               curve: Curves.fastOutSlowIn,
-              width:
-                  _isExpanded ? MediaQuery.of(context).size.width - 32 : null,
-              constraints: BoxConstraints(
-                maxWidth: _isExpanded ? double.infinity : 170,
-                minWidth: 140,
-                minHeight: 70, // Add minimum height
-                maxHeight: _isExpanded ? 300 : 70,
-              ),
-              decoration: BoxDecoration(
-                color: backgroundColor,
-                borderRadius: BorderRadius.circular(16.0),
-                border: Border.all(
-                  color: widget.healthSign == "Good"
-                      ? const Color(0xFF4CAF50).withValues(alpha: 0.3)
-                      : widget.healthSign == "Bad"
-                          ? const Color(0xFFFF5252).withValues(alpha: 0.3)
-                          : const Color(0xFFFFC107).withValues(alpha: 0.3),
-                  width: 1,
-                ),
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(16.0),
-                child: SingleChildScrollView(
-                  child: AnimatedSize(
-                    duration: const Duration(milliseconds: 500),
-                    curve: Curves.fastOutSlowIn,
-                    alignment: Alignment.topCenter,
+              alignment: Alignment.topCenter,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24.0, vertical: 16.0),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8.0, vertical: 14.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Flexible(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Icon(
-                                    statusIcon,
-                                    size: 20,
-                                    color: widget.healthSign == "Good"
-                                        ? const Color(0xFF4CAF50)
-                                        : widget.healthSign == "Bad"
-                                            ? const Color(0xFFFF5252)
-                                            : const Color(0xFFFFC107),
+                                  Row(
+                                    children: [
+                                      Text(
+                                        widget.nutrient,
+                                        style: AppTextStyles.bodyLargeBold,
+                                      ),
+                                      Expanded(
+                                        child: Container(),
+                                      ),
+                                      Text(
+                                        widget.quantity,
+                                        style: AppTextStyles.bodyLargeBold,
+                                      ),
+                                      // RotationTransition(
+                                      //   turns: Tween(begin: 0.0, end: 0.5)
+                                      //       .animate(_animationController),
+                                      //   child: Icon(
+                                      //     Icons.keyboard_arrow_down,
+                                      //     color: Theme.of(context)
+                                      //         .textTheme
+                                      //         .bodyMedium!
+                                      //         .color,
+                                      //     size: 20,
+                                      //   ),
+                                      // ),
+                                    ],
                                   ),
-                                  const SizedBox(width: 8),
-                                  Flexible(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Text(
-                                              widget.nutrient,
-                                              style: TextStyle(
-                                                color: Theme.of(context)
-                                                    .textTheme
-                                                    .bodyMedium!
-                                                    .color,
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.w600,
-                                                fontFamily: 'Inter',
-                                              ),
-                                            ),
-                                            Expanded(
-                                              child: Container(),
-                                            ),
-                                            RotationTransition(
-                                              turns: Tween(begin: 0.0, end: 0.5)
-                                                  .animate(
-                                                      _animationController),
-                                              child: Icon(
-                                                Icons.keyboard_arrow_down,
-                                                color: Theme.of(context)
-                                                    .textTheme
-                                                    .bodyMedium!
-                                                    .color,
-                                                size: 20,
-                                              ),
-                                            ),
-                                          ],
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        statusIcon,
+                                        size: 16,
+                                        color: widget.healthSign == "Good"
+                                            ? AppColors.secondaryGreen
+                                            : widget.healthSign == "Bad"
+                                                ? AppColors.secondaryRed
+                                                : AppColors.secondaryOrange,
+                                      ),
+                                      const SizedBox(width: 4),
+                                      widget.healthSign == "Good"
+                                          ? Text("Good",
+                                              style: AppTextStyles
+                                                  .bodyMediumGreenAccent)
+                                          : widget.healthSign == "Bad" &&
+                                                  widget.status == "Low"
+                                              ? Text("Insufficient",
+                                                  style: AppTextStyles
+                                                      .bodyMediumRedAccent)
+                                              : Text("Limit",
+                                                  style: AppTextStyles
+                                                      .bodyMediumOrangeAccent),
+                                      Expanded(
+                                        child: Container(),
+                                      ),
+                                      Text(
+                                        "${widget.dailyValue} DV",
+                                        style: TextStyle(
+                                          color: widget.healthSign == "Good"
+                                              ? AppColors.secondaryGreen
+                                              : widget.healthSign == "Bad"
+                                                  ? AppColors.secondaryRed
+                                                  : AppColors.secondaryOrange,
+                                          fontSize: 16,
+                                          letterSpacing: -0.2,
+                                          height: 1.5,
+                                          fontWeight: FontWeight.w500,
+                                          fontFamily: 'Inter',
                                         ),
-                                        Row(
-                                          children: [
-                                            Text(
-                                              widget.quantity,
-                                              style: TextStyle(
-                                                color: Theme.of(context)
-                                                    .textTheme
-                                                    .bodyMedium!
-                                                    .color,
-                                                fontSize: 11,
-                                                fontFamily: 'Inter',
-                                              ),
-                                            ),
-                                            const SizedBox(width: 4),
-                                            Text(
-                                              "| ${widget.dailyValue} DV",
-                                              style: TextStyle(
-                                                color: widget.healthSign ==
-                                                        "Good"
-                                                    ? const Color(0xFF4CAF50)
-                                                    : widget.healthSign == "Bad"
-                                                        ? const Color(
-                                                            0xFFFF5252)
-                                                        : const Color(
-                                                            0xFFFFC107),
-                                                fontSize: 11,
-                                                fontWeight: FontWeight.w600,
-                                                fontFamily: 'Inter',
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
-                              if (_isExpanded && widget.insight != null)
-                                AnimatedOpacity(
-                                  duration: const Duration(milliseconds: 300),
-                                  opacity: _isExpanded ? 1.0 : 0.0,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(top: 12.0),
-                                    child: Text(
-                                      widget.insight!,
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        color: Theme.of(context)
-                                            .textTheme
-                                            .bodyMedium!
-                                            .color,
-                                        height: 1.5,
-                                        fontFamily: 'Inter',
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
+                        if (_isExpanded && widget.insight != null)
+                          AnimatedOpacity(
+                            duration: const Duration(milliseconds: 300),
+                            opacity: _isExpanded ? 1.0 : 0.0,
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 12.0),
+                              child: Text(
+                                widget.insight!,
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium!
+                                      .color,
+                                  height: 1.5,
+                                  fontFamily: 'Inter',
+                                ),
+                              ),
+                            ),
+                          ),
                       ],
                     ),
                   ),
-                ),
+                ],
               ),
             ),
           ),
@@ -278,6 +250,7 @@ class _NutrientTileState extends State<NutrientTile>
 class NutrientData {
   final String name;
   final String healthSign;
+  final String status;
   final String quantity;
   final String dailyValue;
   final String? insight;
@@ -285,6 +258,7 @@ class NutrientData {
   NutrientData({
     required this.name,
     required this.healthSign,
+    required this.status,
     required this.quantity,
     required this.dailyValue,
     this.insight,
